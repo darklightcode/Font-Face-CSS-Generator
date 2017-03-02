@@ -1,0 +1,24 @@
+{
+  "name": "font-face-css-generator",
+  "version": "1.0.0",
+  "description": "Generate the fonts you need based on your url link.",
+  "main": "index.js",
+  "scripts": {
+    "start-default": "php -S 0.0.0.0:9000 router/router.php"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darklightcode/Font-Face-CSS-Generator.git"
+  },
+  "keywords": [
+    "font-face",
+    "generate fonts",
+    "fonts"
+  ],
+  "author": "darklight",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/darklightcode/Font-Face-CSS-Generator/issues"
+  },
+  "homepage": "https://github.com/darklightcode/Font-Face-CSS-Generator#readme"
+}
