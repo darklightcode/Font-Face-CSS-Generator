@@ -225,7 +225,3 @@ class FontFaceCssGenerator
     }
 
 }
-
-$fonts = new FontFaceCssGenerator("./fonts/");
-
-echo $fonts->generate_font_face();
