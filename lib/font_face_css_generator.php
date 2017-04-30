@@ -5,6 +5,7 @@ class FontFaceCssGenerator
 
     var $fonts_directory = "./";
     var $allowed_fonts = array("ttf", "otf", "woff", "woff2", "svg", "eot");
+    var $generic_fonts = array("cursive", "fantasy", "monospace", "serif", "sans-serif");
     var $font_formats = array(
         "ttf" => "truetype",
         "otf" => "opentype"
@@ -13,12 +14,12 @@ class FontFaceCssGenerator
     var $families = array();
     var $show_available_fonts = false;
 
-    function __construct( $path_to_fonts = "" )
+    function __construct($path_to_fonts = "")
     {
 
         header("Content-Type: text/css");
 
-        $this->fonts_directory = preg_replace('([/\\\]+)','/', (strlen(trim($path_to_fonts)) > 0 ? $path_to_fonts : $this->fonts_directory).'/' );
+        $this->fonts_directory = preg_replace('([/\\\]+)', '/', (strlen(trim($path_to_fonts)) > 0 ? $path_to_fonts : $this->fonts_directory) . '/');
 
         if (isset($_GET['font-family']) && strlen(trim($_GET['font-family'])) > 0) {
 
@@ -87,12 +88,16 @@ class FontFaceCssGenerator
 
                         if ($valid_type && @filesize($scan_path . '/' . $item) > 0) {
 
-                            if (!isset($fonts_found[$extension])) {
-                                $fonts_found[$extension] = array();
+                            if (!isset($fonts_found['fonts'][$extension])) {
+                                $fonts_found['fonts'][$extension] = array();
                             }
 
-                            $fonts_found[$extension][count($fonts_found[$extension])] = array("name" => $item, "path" => $scan_path . '/' . $item);
+                            $fonts_found['fonts'][$extension][count($fonts_found['fonts'][$extension])] = array("name" => $item, "path" => $scan_path . '/' . $item);
 
+                        }
+
+                        if (strtolower($item) === 'default.genericfont' && @filesize($scan_path . '/' . $item) > 0) {
+                            $fonts_found['genericfont'] = trim(file_get_contents($scan_path . '/' . $item));
                         }
 
                     }
@@ -162,25 +167,33 @@ class FontFaceCssGenerator
 
         $styles = array();
 
-        if (count($found_families = $this->retrieve_families($found_families)) > 0) {
+        $families = $this->retrieve_families($found_families);
+
+        if (count($found_families = $families) > 0) {
 
             foreach ($found_families as $family_name => $font) {
 
-                foreach ($font as $font_type => $find_types) {
+                foreach ($font['fonts'] as $font_type => $find_types) {
 
                     foreach ($find_types as $file) {
 
                         $extension = strrev(strstr(strrev($file['name']), '.', true));
                         $name_no_ext = basename($file['name'], "." . $extension);
 
-                        if (!isset($styles[$family_name][$name_no_ext])) {
-                            $styles[$family_name][$name_no_ext] = array();
+                        if (!isset($styles[$family_name]['fonts'][$name_no_ext])) {
+                            $styles[$family_name]['fonts'][$name_no_ext] = array();
                         }
 
-                        $styles[$family_name][$name_no_ext][] = $this->src_format($file['path']);
+                        $styles[$family_name]['fonts'][$name_no_ext][] = $this->src_format($file['path']);
 
                     }
 
+
+                }
+
+                if (isset($font['genericfont']) && in_array($font['genericfont'], $this->generic_fonts)) {
+
+                    $styles[$family_name]['genericfont'] = strtolower($font['genericfont']);
 
                 }
 
@@ -199,15 +212,17 @@ class FontFaceCssGenerator
 
                 if ($this->show_available_fonts) {
                     $html .= "#### Available Fonts:" . PHP_EOL;
-                    $html .= "#------ " . implode(PHP_EOL . "#------ ", array_keys($fonts)) . PHP_EOL;
+                    $html .= "#------ " . implode(PHP_EOL . "#------ ", array_keys($fonts['fonts'])) . PHP_EOL;
                 }
 
                 $html .= "###########################" . PHP_EOL . PHP_EOL;
 
-                foreach ($fonts as $font_name => $src) {
+                $genericfont = isset($fonts['genericfont']) ? ", " . $fonts['genericfont'] : "";
+
+                foreach ($fonts['fonts'] as $font_name => $src) {
 
                     $html .= "@font-face{" . PHP_EOL;
-                    $html .= '  font-family: "' . $font_name . '";' . PHP_EOL;
+                    $html .= '  font-family: "' . $font_name . '"' . $genericfont . ';' . PHP_EOL;
                     $html .= '  src: ' . implode(',' . PHP_EOL . "       ", $src) . ';' . PHP_EOL;
                     $html .= "}" . PHP_EOL . PHP_EOL;
 
