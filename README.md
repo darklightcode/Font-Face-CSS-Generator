@@ -3,6 +3,8 @@ Generate the fonts you need based on your url link.
 You can use this library for your CDN to generate your css fonts on the spot.
 
 # Usage
+Run from your shell 'npm run start-default' or 'php -S 0.0.0.0:9000 router/router.php' then go to the url:
+
 http://localhost:9000/?font-family=Roboto,OleoScript
 
 # Query Options
