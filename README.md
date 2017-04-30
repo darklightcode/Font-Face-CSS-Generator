@@ -1,6 +1,6 @@
 # Font-Face-CSS-Generator
 Generate the fonts you need based on your url link.
-You can use this library for you CDN to generate your fonts on the spot.
+You can use this library for your CDN to generate your css fonts on the spot.
 
 # Usage
 http://localhost:9000/?font-family=Roboto,OleoScript
